@@ -1,3 +1,5 @@
+//Description: This is basic home screen which contains navigation bar for expense summary 
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
@@ -48,15 +50,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
+//Author: Ansh Patel
+//`HomeContent` displays the list of expenses or a message if no expenses exist.
 class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+     // Access the list of expenses from the provider
     final expenses = Provider.of<ExpensesProvider>(context).expenses;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Home Screen")),
       body: expenses.isEmpty
+      // Display a message when no expenses have been added
           ? const Center(child: Text("No expenses added yet!"))
           : ListView.builder(
               itemCount: expenses.length,
@@ -65,10 +70,12 @@ class HomeContent extends StatelessWidget {
                   expenses[i].description,
                   style: TextStyle(fontSize: 25),
                 ),
+                // Display the expense amount as the subtitle
                 subtitle: Text(
                   "\$${expenses[i].amount.toStringAsFixed(2)}",
                   style: TextStyle(fontSize: 18),
                 ),
+                // Display the date of the expense on top right side
                 trailing: Text(
                   "Date: ${expenses[i].date.toLocal().toString().split(' ')[0]}",
                   style: TextStyle(fontSize: 18),
@@ -83,6 +90,7 @@ class HomeContent extends StatelessWidget {
               ),
             ),
       floatingActionButton: FloatingActionButton(
+        // Navigate to AddExpenseScreen when the button is pressed
         onPressed: () {
           Navigator.of(context).pushNamed('/add-expense');
         },

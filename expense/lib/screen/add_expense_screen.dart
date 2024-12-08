@@ -1,6 +1,9 @@
 //Author: Ansh Patel 
+//Description: This screen provides a form to add a new expense
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../providers/expense_provider.dart';
 import '../models/expense.dart';
 
@@ -14,8 +17,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
 
-  final List<String> _friends = ["Jerome", "Ansh","Meet"];
-  String? _paidBy;  // Track who paid for the expense (only one selection)
+  final List<String> _friends = ["Jerome", "Ansh","Meet"];//List of friends
+  String? _paidBy;  // Track who paid for the expense 
   List<String> _selectedFriends = [];  // Track who the expense is split between
 
   @override
@@ -23,22 +26,25 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Add Expense")),
       body: SingleChildScrollView(  // Wrap content in SingleChildScrollView
+      //Prevent overflow when the keyboard is shown
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
+              //Input field for expense amount
               controller: _amountController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: "Amount"),
             ),
+            //Input field for expense description
             TextField(
               controller: _descriptionController,
               decoration: const InputDecoration(labelText: "Description"),
             ),
             const SizedBox(height: 20),
 
-            // Paid By: Single selection dropdown
+            // Dropdown to select who paid for the expense
             DropdownButtonFormField<String>(
               value: _paidBy,
               decoration: const InputDecoration(labelText: "Paid By"),
@@ -56,7 +62,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
             const SizedBox(height: 20),
 
-            // Split Between: Multi-select list (checkboxes)
+            // check boxes to select who shares the expense
             Text("Split Between:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ..._friends.map((friend) {
               return CheckboxListTile(
@@ -75,7 +81,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             }).toList(),
 
             const SizedBox(height: 20),
-
+             // Button to save the expense
             ElevatedButton(
               onPressed: () => _submitExpense(context),
               child: const Text("Save Expense"),
@@ -85,8 +91,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
     );
   }
-
-  void _submitExpense(BuildContext context) {
+  //validations
+  void _submitExpense(BuildContext context) async {
     final amount = double.tryParse(_amountController.text) ?? 0.0;
     final description = _descriptionController.text;
 
@@ -105,9 +111,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       date: _selectedDate,
       splitBetween: _selectedFriends,  // Pass the selected friends here
     );
+    final prefs = await SharedPreferences.getInstance();
+    final expenses = prefs.getStringList('expenses') ?? []; // Retrieve existing expenses
+    expenses.add(jsonEncode(newExpense.toJson())); // Convert expense to JSON
+    await prefs.setStringList('expenses', expenses); // Save updated expenses
 
+    //Adding expense to the provider 
     Provider.of<ExpensesProvider>(context, listen: false).addExpense(newExpense);
-
+    // this will navigate back to the previous screen
     Navigator.of(context).pop();
   }
 }
