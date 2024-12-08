@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:expense/screen/expense_detail_screen.dart';
 import './screen/add_expense_screen.dart';
 import './screen/home_screen.dart';
 import './providers/expense_provider.dart';
@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (ctx) => HomeScreen(),
           '/add-expense': (ctx) => AddExpenseScreen(),
+          '/expense_detail': (ctx) => ExpenseDetailScreen(),
         },
       ),
     );
